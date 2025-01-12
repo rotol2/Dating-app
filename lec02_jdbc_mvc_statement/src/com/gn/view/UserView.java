@@ -2,12 +2,12 @@ package com.gn.view;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 import com.gn.controller.UserController;
+import com.gn.model.dao.GenericHelper;
+import com.gn.model.dao.GenericHelper.InputType;
 import com.gn.model.vo.SecureAuth;
 import com.gn.model.vo.User;
 import com.gn.model.vo.UserProfile;
@@ -66,85 +66,32 @@ public class UserView {
 	}
 
 	private void registerUser() {
+		GenericHelper inputHelper = new GenericHelper();
 		System.out.println("=== 회원 등록 ===");
 
-		String email = getInput("이메일: ");
-		String password = getInput("비밀번호: ");
-		String username = getInput("이름: ");
-		String state = "active";
-		LocalDate birth = getDate("생년월일 (YYYY-MM-DD): ");
-		int height = getInt("키: ");
-		String gender = getInput("성별 (male/female): ");
-		String phoneNumber = getInput("전화번호 (000-0000-0000): ");
-		String address = getInput("주소: ");
-		String profilePicture = getInput("프로필 사진 경로: ");
-		String interests = getInput("관심사: ");
-		String mbti = getInput("MBTI: ");
-		String bio = getInput("자기소개: ");
+	    String email = inputHelper.getInput("이메일: ", InputType.STRING, String.class);
+	    String password = inputHelper.getInput("비밀번호: ", InputType.STRING, String.class);
+	    String username = inputHelper.getInput("이름: ", InputType.STRING, String.class);
+	    String state = "active";
+	    LocalDate birth = inputHelper.getInput("생년월일 (YYYY-MM-DD): ", InputType.LOCAL_DATE, LocalDate.class);
+	    int height = inputHelper.getInput("키: ", InputType.INTEGER, Integer.class);
+	    String gender = inputHelper.getInput("성별 (male/female): ", InputType.STRING, String.class);
+	    String phoneNumber = inputHelper.getInput("전화번호 (000-0000-0000): ", InputType.STRING, String.class);
+	    String address = inputHelper.getInput("주소: ", InputType.STRING, String.class);
+	    String profilePicture = inputHelper.getInput("프로필 사진 경로: ", InputType.STRING, String.class);
+	    String interests = inputHelper.getInput("관심사: ", InputType.STRING, String.class);
+	    String mbti = inputHelper.getInput("MBTI: ", InputType.STRING, String.class);
+	    String bio = inputHelper.getInput("자기소개: ", InputType.STRING, String.class);
 
 		LocalDateTime currentTime = LocalDateTime.now();
 
-		// [수정함]
-		// 생성자 새로 만든거 주석처리하고 저번에 매개변수로 null만 넣어보고 0안넣어봐서 id매개변수값에 0으로 넣었더니
-		// 전체회원목록보기도 정상적으로 id값 나오고(sql확인해도 아이디 정상적으로 보임)
-		// 해결한것 같은데 맞는지 여쭤보기!(해결된거면 user,userprofile 주석처리 된 부분 삭제)
+		// 생성자 매개변수 불일치 id매개변수 값에 0으로 넣으면 해결
 		User user = new User(0, email, password, username, state, currentTime, currentTime);
 		UserProfile profile = new UserProfile(0, 0, birth, height, gender, phoneNumber, address, profilePicture,
 				interests, mbti, bio, currentTime, currentTime);
 
 		userController.registerUser(user, profile);
 		System.out.println("회원 등록이 완료되었습니다.");
-	}
-
-	// [수정함]
-	// 데이터 타입별로 메소드 만들었음
-	// 열거 타입,제네릭은 코드가 더 복잡해져서 현재 코드가 더 간결한것 같음
-	// 그런데 메소드마다 while문에 중복되는 부분이 있어서,, 열거타입이 나으려나? 
-	// 근데 변수에 메소드(Object 반환값) 대입시 형변환도 따로 해줘야함ㅠ
-	private String getInput(String prompt) {
-		String input = null;
-		while (true) {
-			System.out.print(prompt);
-			input = scanner.nextLine();
-			if (input.trim().isEmpty()) {
-				System.out.println("필수 입력 사항입니다.");
-			} else {
-				break;
-			}
-		}
-		return input;
-	}
-
-	private LocalDate getDate(String prompt) {
-		LocalDate birth = null;
-		while (birth == null) {
-			System.out.print(prompt);
-			String birthInput = scanner.nextLine();
-			try {
-				birth = LocalDate.parse(birthInput);
-			} catch (DateTimeParseException e) {
-				System.out.println("잘못된 날짜 형식입니다. 다시 입력해주세요.");
-			}
-		}
-		return birth;
-	}
-
-	private int getInt(String prompt) {
-		int height = 0;
-		while (height <= 0) {
-			System.out.print(prompt);
-			try {
-				height = scanner.nextInt();
-				scanner.nextLine();
-				if (height <= 0) {
-					System.out.println("키를 다시 확인해주세요.");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("숫자만 입력할 수 있습니다.");
-				scanner.nextLine();
-			}
-		}
-		return height;
 	}
 
 	private void viewAllUsers() {
@@ -219,16 +166,15 @@ public class UserView {
 			user.setPassword(newPassword.trim().isEmpty() ? user.getPassword() : newPassword);
 			profile.setPhoneNumber(newPhoneNumber.trim().isEmpty() ? profile.getPhoneNumber() : newPhoneNumber);
 			profile.setAddress(newAddress.trim().isEmpty() ? profile.getAddress() : newAddress);
-			profile.setProfilePicture(
-					newProfilePicture.trim().isEmpty() ? profile.getProfilePicture() : newProfilePicture);
+			profile.setProfilePicture(newProfilePicture.trim().isEmpty() ? profile.getProfilePicture() : newProfilePicture);
 			profile.setInterests(newInterests.trim().isEmpty() ? profile.getInterests() : newInterests);
 			profile.setMbti(newMbti.trim().isEmpty() ? profile.getMbti() : newMbti);
 			profile.setBio(newBio.trim().isEmpty() ? profile.getBio() : newBio);
 
-			userController.updateUser(user, profile);
-			System.out.println("회원 정보가 업데이트되었습니다.");
-		} else {
-			System.out.println("해당 ID의 회원이 존재하지 않습니다.");
+	        userController.updateUser(user, profile);
+	        System.out.println("회원 정보가 업데이트되었습니다.");
+	    } else {
+	        System.out.println("해당 ID의 회원이 존재하지 않습니다.");
 		}
 	}
 	
