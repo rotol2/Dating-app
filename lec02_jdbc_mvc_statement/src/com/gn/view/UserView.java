@@ -129,7 +129,10 @@ public class UserView {
 			System.out.println("해당 ID의 회원이 존재하지 않습니다.");
 		}
 	}
-
+	
+	// 빈값 입력하면 기존 입력내용 유지하도록 함
+	// 근데 여기도 올바른 입력이 아닐때, 다시 입력하도록 하는 코드를 추가해야할 듯 !
+	// 회원가입 부분 수정 후 적용해봐야 함
 	private void updateUser() {
 		System.out.print("수정할 회원 ID: ");
 		int userId = scanner.nextInt();
@@ -159,9 +162,6 @@ public class UserView {
 			System.out.print("새 자기소개 (현재: " + profile.getBio() + "): ");
 			String newBio = scanner.nextLine();
 
-			// 삼항연산자로 빈값 입력하면 기존 입력내용 유지하도록 함
-			// 근데 여기도 올바른 입력이 아닐때, 다시 입력하도록 하는 코드를 추가해야할 듯 !
-			// 회원가입 부분 수정 후 적용해봐야 함
 			user.setEmail(newEmail.trim().isEmpty() ? user.getEmail() : newEmail);
 			user.setPassword(newPassword.trim().isEmpty() ? user.getPassword() : newPassword);
 			profile.setPhoneNumber(newPhoneNumber.trim().isEmpty() ? profile.getPhoneNumber() : newPhoneNumber);

@@ -1,9 +1,11 @@
 package com.gn.view;
 
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 import com.gn.controller.MatchController;
+import com.gn.model.vo.Message;
 import com.gn.model.vo.SecureAuth;
 import com.gn.model.vo.UserWithProfile;
 
@@ -24,6 +26,9 @@ public class MatchView {
 		while (true) {
 			System.out.println("== 메인 메뉴 ==");
 			System.out.println("1. 매칭할 유저 조회");
+			System.out.println("2. 받은 메시지 확인");
+			// 찜확인,평점 확인 기능도 추가해야 하나??
+			System.out.println("3. 유저 검색");
 			System.out.println("X. 종료");
 			System.out.print("메뉴 선택 : ");
 			int input = scanner.nextInt();
@@ -32,6 +37,12 @@ public class MatchView {
 			switch (input) {
 			case 1:
 				viewMatchingUsers();
+				break;
+			case 2:
+				viewMessages();
+				break;
+			case 3:
+				searchUsers();
 				break;
 			case 5:
 				return;
@@ -100,17 +111,20 @@ public class MatchView {
 			System.out.println("자기소개: " + userWithProfile.getUserProfile().getBio());
 
 			while (true) {
-				System.out.println("\n1. 메시지 보내기 | 2. 하트 보내기 | 3. 돌아가기");
+				System.out.println("\n1. 메시지 보내기 | 2. 하트 보내기 | 3. 평점 입력 | 4. 돌아가기");
 				System.out.print("메뉴 선택: ");
 				int input = scanner.nextInt();
 				scanner.nextLine();
 
 				if (input == 1) {
-					// sendMesageToUser(userId);
+					sendMessageToUser(userId);
 				} else if(input == 2) {
-					// sendHeartToUser(userId);
+					sendFavoriteToUser(userId);
 				} else if(input == 3) {
-					viewMatchingUsers();
+					sendMarkToUser(userId);
+					break;
+				} else if(input == 4) {
+					break;
 				} else {
 					System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
 				}
@@ -120,4 +134,140 @@ public class MatchView {
 		}
 
 	}
+	
+	private void sendMessageToUser(int userId) {
+		System.out.print("메세지 내용 : ");
+		String message = scanner.nextLine();
+		boolean result = matchController.sendMessage(userSession.getUserId(), userId, message);
+		System.out.println(result ? "메세지가 성공적으로 전송 되었습니다." : "메세지 전송에 실패했습니다.");
+	}
+	
+	private void sendFavoriteToUser(int userId) {
+		boolean result = matchController.sendFavorite(userSession.getUserId(), userId);
+		System.out.println(result ? "찜하기 성공" : "찜하기 실패");
+	}
+	
+	private void sendMarkToUser(int userId) {
+		int mark;
+		while(true) {
+			try {			
+				System.out.print("평점 입력(최저:1 ~ 최고:5) : ");
+				mark = scanner.nextInt();
+				if(1<=mark && mark<=5) {
+					break;
+				} else {
+					System.out.println("잘못된 입력입니다. 1부터 5사이의 값을 입력해주세요.");
+				}
+			} catch(InputMismatchException e){
+	            System.out.println("잘못된 입력입니다. 숫자를 입력해주세요.");
+	            scanner.nextLine();
+			}
+		}
+		boolean result = matchController.sendMark(userSession.getUserId(), userId, mark);
+		System.out.println(result ? "평점이 성공적으로 등록되었습니다." : "평점 등록에 실패했습니다.");
+	}
+	
+    private void viewMessages() {
+        try {
+            List<Message> messages = matchController.getMessagesForUser(userSession.getUserId());
+            if (messages.isEmpty()) {
+                System.out.println("받은 메시지가 없습니다.");
+                return;
+            }
+
+            System.out.println("\n== 받은 메시지 목록 ==");
+            for (Message message : messages) {
+                System.out.println("보낸 사람 ID: " + message.getSenderId() + " | 메시지: " + message.getMessage() + " | 보낸 시간: " + message.getSentAt());
+            }
+
+            System.out.print("\n답장할 메시지의 보낸 사람 ID를 입력하세요: ");
+            int senderId = scanner.nextInt();
+            scanner.nextLine();
+
+            System.out.print("답장 내용: ");
+            String replyMessage = scanner.nextLine();
+
+            boolean result = matchController.sendMessage(userSession.getUserId(), senderId, replyMessage);
+            System.out.println(result ? "답장이 성공적으로 전송되었습니다." : "답장 전송에 실패했습니다.");
+        } catch (NullPointerException e) {
+            System.out.println("오류: 매치 컨트롤러가 초기화되지 않았습니다.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+	
+    
+    // 조건에 따른 유저 검색이 가능하다면 매칭할 유저 조회는 관리자만 가능해야 할듯 (userview의 전체회원목록보기에 해당)
+    // 조건에 따른 유저 검색이 해당 클래스의 매칭할 유저조회를 해당 메소드로 대체
+	private void searchUsers() {
+//		String item = null;	
+//		String terms = null;
+//		while (true) {	
+//			// 검색할 목록 선택(테이블 열이름)
+//			// 각각 타입이 다를거라 여기서 컨트롤러 보내기전에 타입변환해줘야하나?
+//			System.out.print("검색 항목 선택( 1.나이(생년)) 2.키([1]이상/[2]이하) 3.성별 4.흥미 5.mbti ) : ");
+//			// 성별은 알아서 선택해줘야 할 듯(사용자 아이디에 해당하는 성별 제외)
+//			// 키 범위를 몇 센티 이상으로 검색하고 싶을 수도 있고, 몇센티 이하로 검색하고 싶을수도 있을텐데.. 어떻게 해야?!
+//			// 흥미 검색하려면, 먼저 회원가입 할 때부터 입력가능한 정해진 흥미 항목을 정해야 할듯 
+//			terms = scanner.nextLine();
+//			if() {
+//				
+//			} else if() {
+//				
+//			}
+//			// 검색 목록에 대한 조건 값 입력받아서 해당하는 목록을 보여줌 
+//			// 근데 여기서 매칭할 유저조회 메서드처럼 깔끔하게 정리되게 보여주고 싶은데.. 어떻게 해야할지 
+//			System.out.print("검색 조건 : ");
+//			terms = scanner.nextLine();
+//			List<UserWithProfile> searchingUsers = matchController.getSearchingUsers(item, terms);
+//			break;
+//		}
+//	
+//		int page = 0;
+//		while (true) {
+//			List<UserWithProfile> matchingUsers = matchController.getMatchingUsers(page, PAGE_SIZE);
+//			if (!matchingUsers.isEmpty()) {
+//				System.out.println("\n== 매칭할 유저 목록(페이지 " + (page + 1) + ") ==");
+//				for (UserWithProfile user : matchingUsers) {
+//					System.out.println("---------------------------------------------------------------------");
+//					System.out.println("ID: " + user.getUser().getUserId() + " | 이름: " + user.getUser().getUsername() + " | MBTI: " + user.getUserProfile().getMbti());
+//					System.out.println("키: " + user.getUserProfile().getHeight() + " | 성: " + user.getUserProfile().getGender() + " | 생년월일: " + user.getUserProfile().getBirth());
+//					System.out.println("---------------------------------------------------------------------");
+//				}
+//			} else {
+//				System.out.println("매칭할 유저 목록 없음");
+//			}
+//
+//			System.out.println("\n1. 다음 페이지 | 2. 이전 페이지 | 3. 상세정보 조회 | 4. 종료");
+//			System.out.println("메뉴 선택: ");
+//			int input = scanner.nextInt();
+//			scanner.nextLine();
+//
+//			if (input == 1) {
+//	            matchingUsers = matchController.getMatchingUsers(page + 1, PAGE_SIZE);
+//	            if (!matchingUsers.isEmpty()) {
+//					page++;
+//				} else {
+//					System.out.println("마지막 페이지 입니다.");
+//				}
+//			} else if (input == 2) {
+//				page = Math.max(0, page - 1);
+//			} else if (input == 3) {
+//				viewTargetUserDetails();
+//			} else if (input == 4) {
+//				break;
+//			} else {
+//				System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
+//			}
+//		}
+	}
+	
+	
+	
+	
+	
+	
+	
 }
