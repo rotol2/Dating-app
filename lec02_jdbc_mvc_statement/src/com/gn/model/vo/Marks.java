@@ -7,15 +7,15 @@ public class Marks {
 	private int markId;
 	private int senderId;
 	private int receiverId;
-	private int count;
+	private int mark;
 	private LocalDateTime sendAt;
 	
-	public Marks(int markId, int senderId, int receiverId, int count, LocalDateTime sendAt) {
+	public Marks(int markId, int senderId, int receiverId, int mark, LocalDateTime sendAt) {
 		super();
 		this.markId = markId;
 		this.senderId = senderId;
 		this.receiverId = receiverId;
-		this.count = count;
+		this.mark = mark;
 		this.sendAt = sendAt;
 	}
 
@@ -43,12 +43,12 @@ public class Marks {
 		this.receiverId = receiverId;
 	}
 
-	public int getCount() {
-		return count;
+	public int getMark() {
+		return mark;
 	}
 
-	public void setCount(int count) {
-		this.count = count;
+	public void setMark(int mark) {
+		this.mark = mark;
 	}
 
 	public LocalDateTime getSendAt() {
@@ -58,5 +58,7 @@ public class Marks {
 	public void setSendAt(LocalDateTime sendAt) {
 		this.sendAt = sendAt;
 	}
+	
+
 	
 }

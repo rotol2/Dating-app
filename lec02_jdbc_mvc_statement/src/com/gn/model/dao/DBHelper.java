@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.ResultSet;
 
 public class DBHelper {
@@ -173,5 +174,16 @@ public class DBHelper {
 //        	disconnect(conn, pstmt, null);
 //        }
 //	}
+
+	// matchDAO의 findSearchingUsers메소드를 위해 추가함
+	public static void disconnect(Connection conn, Statement pstmt, ResultSet rs) {
+		try {
+			if (rs != null) rs.close();
+			if (pstmt != null) pstmt.close();
+			if (conn != null) conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 }

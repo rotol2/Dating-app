@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -213,9 +214,9 @@ public class MatchDAO {
         return messages;
     }
 	
-	public List<UserWithProfile> findSearchingUsers(String item, String terms) {
+	public List<UserWithProfile> findSearchingUsers(String condition) {
 		Connection conn = null;
-		PreparedStatement pstmt = null;
+		Statement pstmt = null;
 		ResultSet rs = null;
 		List<UserWithProfile> matchingUsers = new ArrayList<>();
 		
@@ -223,12 +224,12 @@ public class MatchDAO {
 			conn = DBHelper.connect();
 			String query = "SELECT u.user_id, u.username, p.birth, p.height, p.gender, p.address, p.profile_picture, p.interests, p.mbti ,p.bio " +
 						   "FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id " +
-					       "WHERE ? = ?";
-			pstmt = conn.prepareStatement(query);
-			pstmt.setString(1, item);
-			pstmt.setString(2, terms);
+					       "WHERE " + condition;
+			pstmt = conn.createStatement();
+//			pstmt.setString(1, item);
+//			pstmt.setString(2, terms);
 			
-			rs = pstmt.executeQuery();
+			rs = pstmt.executeQuery(query);
 			
 			while (rs.next()) {
 				User user = new User();

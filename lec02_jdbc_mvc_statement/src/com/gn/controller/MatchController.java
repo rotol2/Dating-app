@@ -37,8 +37,8 @@ public class MatchController {
 		return matchDAO.getMessagesForUser(userId);
 	}
 	
-	public List<UserWithProfile> getSearchingUsers(String item, String terms) {
-		return matchDAO.findSearchingUsers(item, terms);
+	public List<UserWithProfile> getSearchingUsers(String condition) {
+		return matchDAO.findSearchingUsers(condition);
 	}
 	
 }
