@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -214,22 +213,31 @@ public class MatchDAO {
         return messages;
     }
 	
-	public List<UserWithProfile> findSearchingUsers(String condition) {
-		Connection conn = null;
-		Statement pstmt = null;
-		ResultSet rs = null;
-		List<UserWithProfile> matchingUsers = new ArrayList<>();
-		
-		try {
-			conn = DBHelper.connect();
-			String query = "SELECT u.user_id, u.username, p.birth, p.height, p.gender, p.address, p.profile_picture, p.interests, p.mbti ,p.bio " +
-						   "FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id " +
-					       "WHERE " + condition;
-			pstmt = conn.createStatement();
-//			pstmt.setString(1, item);
-//			pstmt.setString(2, terms);
-			
-			rs = pstmt.executeQuery(query);
+	public List<UserWithProfile> findSearchingUsers(String condition, Object value) {
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    List<UserWithProfile> matchingUsers = new ArrayList<>();
+
+	    try {
+	        conn = DBHelper.connect();
+
+	        // 수정된 부분
+	        String query = "SELECT u.user_id, u.username, p.birth, p.height, p.gender, p.address, p.profile_picture, p.interests, p.mbti, p.bio " +
+	                       "FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id " +
+	                       "WHERE " + condition + "?";
+
+	        pstmt = conn.prepareStatement(query);
+
+	        if (value instanceof Integer) {
+	            pstmt.setInt(1, (Integer) value);
+	        } else if (value instanceof String) {
+	            pstmt.setString(1, (String) value);
+	        } else {
+	            throw new IllegalArgumentException("지원되지 않는 데이터 타입입니다.");
+	        }
+
+	        rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
 				User user = new User();
@@ -240,7 +248,7 @@ public class MatchDAO {
 				profile.setBirth(rs.getDate("birth").toLocalDate());
 				profile.setHeight(rs.getInt("height"));
 				profile.setGender(rs.getString("gender"));
-				profile.setProfilePicture(rs.getString("profilePicture"));
+				profile.setProfilePicture(rs.getString("profile_picture"));
 				profile.setInterests(rs.getString("interests"));
 				profile.setMbti(rs.getString("mbti"));
 				profile.setBio(rs.getString("bio"));
@@ -251,8 +259,7 @@ public class MatchDAO {
 			e.printStackTrace();
 		} finally {
 			DBHelper.disconnect(conn, pstmt, rs);
-		}
-		
+		}		
 		return matchingUsers;
 	}
 	

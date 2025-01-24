@@ -1,12 +1,11 @@
 package com.gn.view;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 import com.gn.controller.MatchController;
+import com.gn.controller.UserController;
 import com.gn.model.vo.Message;
 import com.gn.model.vo.SecureAuth;
 import com.gn.model.vo.User;
@@ -208,16 +207,15 @@ public class MatchView {
     // -> 해당 클래스의 매칭할 유저조회를 해당 메소드에 메소드명(or 코드) 끌고와서 써보기 
  
 	private void searchUsers() {
-		String item = null;	
-		String terms = null;
 		String condition = null;
+		Object value = null;
 		StringBuilder userChoice = null;
 		
 		while (true) {		
 			//(숙제 1 번)
 			// 검색할 목록 선택(테이블 열이름)
 			// 각각 타입이 다를거라 여기서 컨트롤러 보내기전에 타입변환해줘야하나? -> Stringbuilder로 해보기 
-			System.out.print("검색 항목 선택( 1.나이 2.키 3.성별 4.흥미 5.mbti 6.종료 ) : ");
+			System.out.print("검색 항목 선택( 1.나이 2.키 3.성별 4.흥미 5.mbti 6.종료 : ");
 			int input = scanner.nextInt();
 			scanner.nextLine();
 			// 성별은 알아서 선택해줘야 할 듯(사용자 아이디에 해당하는 성별 제외)
@@ -227,43 +225,57 @@ public class MatchView {
 			// -> 다 혰는데 시간 남으면 흥미 테이블 새로 만들어서 항목 정해서 다시 회원가입 받는 방법 생각해보고, 아니면 아예 흥미 검색 빼기
 
 			if(input == 1) {
-				item = "p.birth";
-				System.out.print("생년(년도 4자리) 입력");
-				String choice = scanner.nextLine();
-		        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		        LocalDate date = LocalDate.parse(choice, formatter);
-				condition = "YEAR(p.birth) = "+choice;
+				System.out.print("생년(년도 4자리) 입력 : ");
+				int year = scanner.nextInt();
+				scanner.nextLine();
+				condition = "YEAR(birth) = ";
+				value = year;
 			} else if(input == 2) {
-				item = "p.height";
-				System.out.print("키 입력");
-				String choice = scanner.nextLine();
-				System.out.print("[1]이상/[2]이하");
-				Integer nextChoice = scanner.nextInt();
+				System.out.print("키 입력 : ");
+				int height = scanner.nextInt();
+				scanner.nextLine();
+				System.out.print("[1]이상/[2]이하 : ");
+				int nextChoice = scanner.nextInt();
 				scanner.nextLine();
 				switch (nextChoice) {
 				case 1:
+					condition = "height >= ";
 					break;
 				case 2 : 
+					condition = "height <= ";
 					break;
 				default:
 					System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
 				}
-				
+				value = height;
 			} else if(input == 3) {
-				item = "p.gender";
-				System.out.print("성별 검색 조건");
-				String choice = scanner.nextLine();
-				userChoice = new StringBuilder(choice);
+				// 여기부터
+				UserController userController = null;			
+				int userId = userSession.getUserId();
+				UserWithProfile userWithProfile = userController.getUsersWithProfileById(userId);
+				UserProfile userProfile = userWithProfile.getUserProfile();
+				String userGender = userProfile.getGender();	
+				// 수정 필요
+				
+				if(userGender.equals("male")) {
+					value = "female";
+				}else if(userGender.equals("female")) {
+					value = "male";
+				}
+				condition = "gender = ";
+				
 			} else if(input == 4) {
-				item = "p.interests";
-				System.out.print("키 검색 조건");
-				String choice = scanner.nextLine();
-				userChoice = new StringBuilder(choice);
+				System.out.print("흥미 검색 : ");
+				String interest = scanner.nextLine();
+				userChoice = new StringBuilder(interest);
+				condition = "interests = ";
+				value = interest;
 			} else if(input == 5) {
-				item = "p.mbti";
-				System.out.print("키 검색 조건");
-				String choice = scanner.nextLine();
-				userChoice = new StringBuilder(choice);
+				System.out.print("mbti 검색 : ");
+				String mbti = scanner.nextLine();
+				userChoice = new StringBuilder(mbti);
+				condition = "mbti = ";
+				value = mbti;
 			} else if(input == 6) {
 				break;
 			} else {
@@ -272,7 +284,7 @@ public class MatchView {
 			
 			// 검색 목록에 대한 조건 값 입력받아서 해당하는 목록을 보여줌 
 			// 근데 여기서 매칭할 유저조회 메서드처럼 깔끔하게 정리되게 보여주고 싶은데.. 어떻게 해야할지 
-			List<UserWithProfile> searchingUsers = matchController.getSearchingUsers(condition);
+			List<UserWithProfile> searchingUsers = matchController.getSearchingUsers(condition,value);
 			System.out.println("-----------------------");
 			for (UserWithProfile u : searchingUsers) {
 				User user = u.getUser();

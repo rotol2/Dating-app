@@ -175,15 +175,15 @@ public class DBHelper {
 //        }
 //	}
 
-	// matchDAO의 findSearchingUsers메소드를 위해 추가함
-	public static void disconnect(Connection conn, Statement pstmt, ResultSet rs) {
-		try {
-			if (rs != null) rs.close();
-			if (pstmt != null) pstmt.close();
-			if (conn != null) conn.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	// matchDAO의 findSearchingUsers메소드를 위해 추가함
+//	public static void disconnect(Connection conn, Statement pstmt, ResultSet rs) {
+//		try {
+//			if (rs != null) rs.close();
+//			if (pstmt != null) pstmt.close();
+//			if (conn != null) conn.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 }
