@@ -2,11 +2,15 @@ package com.gn.view;
 
 import java.util.Scanner;
 
+import com.gn.controller.MatchController;
 import com.gn.controller.SecureAuthController;
+import com.gn.controller.UserController;
+import com.gn.model.dao.MatchDAO;
 import com.gn.model.vo.SecureAuth;
 
 public class LoginView {
 	private SecureAuthController secureAuthController;
+	private UserController userController;
 	private Scanner scanner;
 	
 	public LoginView(SecureAuthController secureAuthController) {
@@ -38,15 +42,17 @@ public class LoginView {
 		}
 	}
 	private void loginUser() {
-		System.out.println("== 로그인 ==");
-		System.out.print("이메일: ");
-		String email = scanner.nextLine();
-		System.out.print("비밀번호: ");
-		String password = scanner.nextLine();
-
-		SecureAuth userSession = secureAuthController.loginProcess(email, password);
+//		System.out.println("== 로그인 ==");
+//		System.out.print("이메일: ");
+//		String email = scanner.nextLine();
+//		System.out.print("비밀번호: ");
+//		String password = scanner.nextLine();
+//
+//		SecureAuth userSession = secureAuthController.loginProcess(email, password);
+		SecureAuth userSession = secureAuthController.loginProcess("t1@gmail.com","");
 		if (userSession != null) {
 			System.out.println(userSession.getUsername() + "님, 환영합니다.");
+			MatchController matchController = new MatchController(new MatchDAO());
 	        new MainUserMenu(userSession).showMenu();  // 회원 관리 메뉴로 이동
 		} else {
 	        System.out.println("로그인 실패. 다시 시도하세요.");

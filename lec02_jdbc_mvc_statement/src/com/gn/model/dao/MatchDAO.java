@@ -213,7 +213,7 @@ public class MatchDAO {
         return messages;
     }
 	
-	public List<UserWithProfile> findSearchingUsers(String condition, Object value) {
+	public List<UserWithProfile> findSearchingUsers(StringBuilder whereQuery) {
 	    Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
@@ -225,17 +225,9 @@ public class MatchDAO {
 	        // 수정된 부분
 	        String query = "SELECT u.user_id, u.username, p.birth, p.height, p.gender, p.address, p.profile_picture, p.interests, p.mbti, p.bio " +
 	                       "FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id " +
-	                       "WHERE " + condition + "?";
+	                       whereQuery;
 
 	        pstmt = conn.prepareStatement(query);
-
-	        if (value instanceof Integer) {
-	            pstmt.setInt(1, (Integer) value);
-	        } else if (value instanceof String) {
-	            pstmt.setString(1, (String) value);
-	        } else {
-	            throw new IllegalArgumentException("지원되지 않는 데이터 타입입니다.");
-	        }
 
 	        rs = pstmt.executeQuery();
 			
