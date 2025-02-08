@@ -5,6 +5,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
+import com.gn.common.validateHelper;
 import com.gn.controller.MatchController;
 import com.gn.controller.UserController;
 import com.gn.model.vo.Message;
@@ -129,7 +130,7 @@ public class MatchView {
 				} else if (input == 2) {
 					sendFavoriteToUser(userId);
 				} else if (input == 3) {
-					sendMarkToUser(userId);
+					sendRatingToUser(userId);
 					break;
 				} else if (input == 4) {
 					break;
@@ -155,13 +156,13 @@ public class MatchView {
 		System.out.println(result ? "찜하기 성공" : "찜하기 실패");
 	}
 
-	private void sendMarkToUser(int userId) {
-		int mark;
+	private void sendRatingToUser(int userId) {
+		int rating;
 		while (true) {
 			try {
 				System.out.print("평점 입력(최저:1 ~ 최고:5) : ");
-				mark = scanner.nextInt();
-				if (1 <= mark && mark <= 5) {
+				rating = scanner.nextInt();
+				if (1 <= rating && rating <= 5) {
 					break;
 				} else {
 					System.out.println("잘못된 입력입니다. 1부터 5사이의 값을 입력해주세요.");
@@ -171,7 +172,7 @@ public class MatchView {
 				scanner.nextLine();
 			}
 		}
-		boolean result = matchController.sendMark(userSession.getUserId(), userId, mark);
+		boolean result = matchController.sendRating(userSession.getUserId(), userId, rating);
 		System.out.println(result ? "평점이 성공적으로 등록되었습니다." : "평점 등록에 실패했습니다.");
 	}
 
@@ -214,6 +215,7 @@ public class MatchView {
 	private void searchUsers() {
 		List<String> conditions = new ArrayList<String>();
 		StringBuilder whereQuery = new StringBuilder();
+		validateHelper validateHelper = new validateHelper(); 
 		
 		while (true) {		
 			try {
@@ -238,7 +240,7 @@ public class MatchView {
 						System.out.print("생년(년도 4자리) 입력 : ");
 						String year = scanner.nextLine().trim();
 						
-						if (year.matches("\\d{4}")) {
+						if (validateHelper.isValidYear(year)) {
 							conditions.add("YEAR(birth) = " + year);
 							break;
 						} else {
@@ -247,35 +249,36 @@ public class MatchView {
 					}
 				} else if(input == 2) {
 					while (true) {
-						try {
 							System.out.print("키 입력 : ");
-							int height = Integer.parseInt(scanner.nextLine().trim());
+							String beforeHeight = scanner.nextLine().trim();
 							
-							while (true) {
-								System.out.print("[1]이상/[2]이하 : ");
-								String choiceStr = scanner.nextLine().trim();
-								
-								try {
-									int nextChoice = Integer.parseInt(choiceStr);
-									if (nextChoice == 1) {
-										conditions.add("height >= " + height);
-										break;
-									} else if (nextChoice == 2) {
-										conditions.add("height <= " + height);
-										break;
-									} else {
-										System.out.println("1 또는 2만 입력해주세요.");
+							if(validateHelper.isValidHeight(beforeHeight)) {
+								int height = Integer.parseInt(beforeHeight);							
+								while (true) {
+									System.out.print("[1]이상/[2]이하 : ");
+									String choiceStr = scanner.nextLine().trim();								
+									try {
+										int nextChoice = Integer.parseInt(choiceStr);
+										if (nextChoice == 1) {
+											conditions.add("height >= " + height);
+											break;
+										} else if (nextChoice == 2) {
+											conditions.add("height <= " + height);
+											break;
+										} else {
+											System.out.println("1 또는 2만 입력해주세요.");
+										}
+									} catch (NumberFormatException e) {
+										System.out.println("숫자만 입력해주세요.");
 									}
-								} catch (NumberFormatException e) {
-									System.out.println("숫자만 입력해주세요.");
 								}
+								break;
+							} else {
+								 System.out.println("올바른 키 형식(예: 175)으로 입력해주세요.");
 							}
-							break;
-						} catch (NumberFormatException e) {
-							System.out.println("올바른 숫자를 입력해주세요.");
-						}
 					}
 				} else if(input == 3) {
+					// 수정해야함
 					int userId = userSession.getUserId();
 					UserWithProfile userWithProfile = userController.getUsersWithProfileById(userId);
 					UserProfile userProfile = userWithProfile.getUserProfile();
@@ -288,13 +291,23 @@ public class MatchView {
 					}
 					
 				} else if(input == 4) {
+					// 수정해야함
 					System.out.print("흥미 검색 : ");
 					String interest = scanner.nextLine();
+					
 					conditions.add("interests = '" + interest + "'");
 				} else if(input == 5) {
-					System.out.print("mbti 검색 : ");
-					String mbti = scanner.nextLine();
-					conditions.add("mbti = '" + mbti + "'");
+					while(true) {
+						System.out.print("mbti 검색 : ");
+						String mbti = scanner.nextLine();
+						
+						if(validateHelper.isValidMbti(mbti)) {
+							conditions.add("mbti = '" + mbti + "'");
+							break;
+						} else {
+							System.out.println("올바른 MBTI 형식(예: ENTJ)으로 입력해주세요.");
+						}
+					}
 				}
 				
 				else if(input == 6) {					
@@ -311,8 +324,12 @@ public class MatchView {
 								User user = u.getUser();
 								UserProfile profile = u.getUserProfile();
 								System.out.println("User ID : " + user.getUserId());
-								System.out.println("이메일 : " + user.getEmail());
-								System.out.println("이름 : " + user.getUsername());
+								System.out.println("User Name : " + user.getUsername());
+								System.out.println("생년 : " + profile.getBirth().getYear());
+								System.out.println("키 : " + profile.getHeight());
+								System.out.println("성별 : " + profile.getGender());
+								System.out.println("사진 : " + profile.getProfilePicture());
+								System.out.println("흥미 : " + profile.getInterests());
 								System.out.println("MBTI : " + profile.getMbti());
 								System.out.println("자기소개 : " + profile.getBio());
 								System.out.println("-----------------------");
@@ -323,6 +340,7 @@ public class MatchView {
 				}
 			} catch (Exception e) {
 	            System.out.println("처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+	            e.printStackTrace();
 	            scanner.nextLine(); // 입력 버퍼 비우기
 	        }
 		}

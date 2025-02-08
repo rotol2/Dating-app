@@ -2,29 +2,29 @@ package com.gn.model.vo;
 
 import java.time.LocalDateTime;
 
-public class Marks {
+public class Rating {
 	
-	private int markId;
+	private int ratingId;
 	private int senderId;
 	private int receiverId;
-	private int mark;
+	private int rating;
 	private LocalDateTime sendAt;
 	
-	public Marks(int markId, int senderId, int receiverId, int mark, LocalDateTime sendAt) {
+	public Rating(int ratingId, int senderId, int receiverId, int rating, LocalDateTime sendAt) {
 		super();
-		this.markId = markId;
+		this.ratingId = ratingId;
 		this.senderId = senderId;
 		this.receiverId = receiverId;
-		this.mark = mark;
+		this.rating = rating;
 		this.sendAt = sendAt;
 	}
 
-	public int getMarkId() {
-		return markId;
+	public int getRatingId() {
+		return ratingId;
 	}
 
-	public void setMarkId(int markId) {
-		this.markId = markId;
+	public void setRatingId(int ratingId) {
+		this.ratingId = ratingId;
 	}
 
 	public int getSenderId() {
@@ -43,12 +43,12 @@ public class Marks {
 		this.receiverId = receiverId;
 	}
 
-	public int getMark() {
-		return mark;
+	public int getRating() {
+		return rating;
 	}
 
-	public void setMark(int mark) {
-		this.mark = mark;
+	public void setRating(int rating) {
+		this.rating = rating;
 	}
 
 	public LocalDateTime getSendAt() {
@@ -59,6 +59,6 @@ public class Marks {
 		this.sendAt = sendAt;
 	}
 	
-
 	
+
 }

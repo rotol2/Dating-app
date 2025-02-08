@@ -158,17 +158,17 @@ public class MatchDAO {
 	    return false;
 	}
 	
-	public boolean insertMark(int senderId, int receiverId, int mark) {
+	public boolean insertRating(int senderId, int receiverId, int rating) {
 	    Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    
 	    try {
 	    	conn = DBHelper.connect();
-	    	String query = "INSERT INTO marks (sender_id, receiver_id, mark, sent_at) VALUES (?, ?, ?, NOW())";
+	    	String query = "INSERT INTO ratings (sender_id, receiver_id, rating, sent_at) VALUES (?, ?, ?, NOW())";
 	    	pstmt = conn.prepareStatement(query);
 	    	pstmt.setInt(1, senderId);
 	    	pstmt.setInt(2, receiverId);
-	    	pstmt.setInt(3, mark);
+	    	pstmt.setInt(3, rating);
 	    	
 	    	return pstmt.executeUpdate() > 0;
 	    } catch (SQLException e) {
@@ -222,7 +222,6 @@ public class MatchDAO {
 	    try {
 	        conn = DBHelper.connect();
 
-	        // 수정된 부분
 	        String query = "SELECT u.user_id, u.username, p.birth, p.height, p.gender, p.address, p.profile_picture, p.interests, p.mbti, p.bio " +
 	                       "FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id " +
 	                       whereQuery;

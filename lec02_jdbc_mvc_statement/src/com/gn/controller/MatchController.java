@@ -29,8 +29,8 @@ public class MatchController {
 		return matchDAO.insertFavorite(senderId, receiverId);
 	}
 	
-	public boolean sendMark(int senderId, int receiverId, int mark) {
-		return matchDAO.insertMark(senderId, receiverId, mark);
+	public boolean sendRating(int senderId, int receiverId, int rating) {
+		return matchDAO.insertRating(senderId, receiverId, rating);
 	}
 	
 	public List<Message> getMessagesForUser(int userId) {
