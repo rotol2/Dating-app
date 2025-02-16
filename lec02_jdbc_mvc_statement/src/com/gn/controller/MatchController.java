@@ -12,9 +12,9 @@ public class MatchController {
 	public MatchController(MatchDAO matchDAO) {
 		this.matchDAO = matchDAO;
 	}
-	
-	public List<UserWithProfile> getMatchingUsers(int page, int pageSize) {
-		return matchDAO.findMatchingUsers(page,pageSize);
+
+	public List<UserWithProfile> getSearchingUsers(StringBuilder whereQuery, int pageSize, int page) {
+		return matchDAO.findSearchingUsers(whereQuery, pageSize , page);
 	}
 	
 	public UserWithProfile getUserDetailsById(int userId) {
@@ -35,10 +35,6 @@ public class MatchController {
 	
 	public List<Message> getMessagesForUser(int userId) {
 		return matchDAO.getMessagesForUser(userId);
-	}
-	
-	public List<UserWithProfile> getSearchingUsers(StringBuilder whereQuery) {
-		return matchDAO.findSearchingUsers(whereQuery);
 	}
 	
 }

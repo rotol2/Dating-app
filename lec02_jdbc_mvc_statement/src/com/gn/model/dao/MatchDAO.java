@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gn.common.DBHelper;
 import com.gn.model.vo.Message;
 import com.gn.model.vo.User;
 import com.gn.model.vo.UserProfile;
@@ -14,23 +15,26 @@ import com.gn.model.vo.UserWithProfile;
 
 public class MatchDAO {
 	
-	public List<UserWithProfile> findMatchingUsers(int page, int pageSize) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		List<UserWithProfile> matchingUsers = new ArrayList<>();
-		
-		try {
-			conn = DBHelper.connect();
-			String query = "SELECT u.user_id, u.username, p.birth, p.height, p.gender, p.mbti " +
-						   "FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id " +
-					       "LIMIT ? OFFSET ?";
-			pstmt = conn.prepareStatement(query);
+	public List<UserWithProfile> findSearchingUsers(StringBuilder whereQuery, int pageSize, int page) {
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    List<UserWithProfile> searchingUsers = new ArrayList<>();
+
+	    try {
+	        conn = DBHelper.connect();
+
+	        String query = "SELECT u.user_id, u.username, p.birth, p.height, p.gender, p.address, p.profile_picture, p.interests, p.mbti, p.bio " +
+	                       "FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id " +
+	                       whereQuery +
+					       " LIMIT ? OFFSET ?";
+
+	        pstmt = conn.prepareStatement(query);
 			pstmt.setInt(1, pageSize);
 			pstmt.setInt(2, page * pageSize);
-			
-			rs = pstmt.executeQuery();
-			
+
+	        rs = pstmt.executeQuery();
+	        
 			while (rs.next()) {
 				User user = new User();
 				user.setUserId(rs.getInt("user_id"));
@@ -40,17 +44,19 @@ public class MatchDAO {
 				profile.setBirth(rs.getDate("birth").toLocalDate());
 				profile.setHeight(rs.getInt("height"));
 				profile.setGender(rs.getString("gender"));
+				profile.setProfilePicture(rs.getString("profile_picture"));
+				profile.setInterests(rs.getString("interests"));
 				profile.setMbti(rs.getString("mbti"));
+				profile.setBio(rs.getString("bio"));
 				
-				matchingUsers.add(new UserWithProfile(user, profile));
+				searchingUsers.add(new UserWithProfile(user, profile));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
 			DBHelper.disconnect(conn, pstmt, rs);
-		}
-		
-		return matchingUsers;
+		}		
+		return searchingUsers;
 	}
 	
 	public UserWithProfile findUserById(int userId) {
@@ -213,45 +219,5 @@ public class MatchDAO {
         return messages;
     }
 	
-	public List<UserWithProfile> findSearchingUsers(StringBuilder whereQuery) {
-	    Connection conn = null;
-	    PreparedStatement pstmt = null;
-	    ResultSet rs = null;
-	    List<UserWithProfile> matchingUsers = new ArrayList<>();
-
-	    try {
-	        conn = DBHelper.connect();
-
-	        String query = "SELECT u.user_id, u.username, p.birth, p.height, p.gender, p.address, p.profile_picture, p.interests, p.mbti, p.bio " +
-	                       "FROM users u INNER JOIN user_profiles p ON u.user_id = p.user_id " +
-	                       whereQuery;
-
-	        pstmt = conn.prepareStatement(query);
-
-	        rs = pstmt.executeQuery();
-			
-			while (rs.next()) {
-				User user = new User();
-				user.setUserId(rs.getInt("user_id"));
-				user.setUsername(rs.getString("username"));
-				
-				UserProfile profile = new UserProfile();
-				profile.setBirth(rs.getDate("birth").toLocalDate());
-				profile.setHeight(rs.getInt("height"));
-				profile.setGender(rs.getString("gender"));
-				profile.setProfilePicture(rs.getString("profile_picture"));
-				profile.setInterests(rs.getString("interests"));
-				profile.setMbti(rs.getString("mbti"));
-				profile.setBio(rs.getString("bio"));
-				
-				matchingUsers.add(new UserWithProfile(user, profile));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			DBHelper.disconnect(conn, pstmt, rs);
-		}		
-		return matchingUsers;
-	}
 	
 }

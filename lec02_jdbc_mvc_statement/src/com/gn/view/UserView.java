@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
+import com.gn.common.GenericHelper;
+import com.gn.common.GenericHelper.InputType;
 import com.gn.controller.UserController;
-import com.gn.model.dao.GenericHelper;
-import com.gn.model.dao.GenericHelper.InputType;
 import com.gn.model.vo.SecureAuth;
 import com.gn.model.vo.User;
 import com.gn.model.vo.UserProfile;
@@ -55,9 +55,9 @@ public class UserView {
 				deleteUser();
 				break;
 			case 6:
-				System.out.println("프로그램을 종료합니다.");
 				scanner.close();
-				System.exit(0);
+//				System.out.println("프로그램을 종료합니다.");
+//				System.exit(0);
 				return;
 			default:
 				System.out.println("잘못된 입력입니다. 다시 시도해주세요.");

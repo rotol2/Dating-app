@@ -2,25 +2,7 @@ package com.gn.common;
 
 import java.util.regex.Pattern;
 
-public class validateHelper {
-	
-//	public int tryParseInt(String value, int defaultVal) {
-//		try {
-//			return Integer.parseInt(value);
-//		} catch(NumberFormatException e) {
-//			return defaultVal;
-//		}
-//	}
-//	
-//	public Boolean tryParseInt(String value) {
-//		try {
-//			int intValue = Integer.parseInt(value);
-//			return true;
-//		} catch(NumberFormatException e) {
-//			System.out.println("숫자만 입력해주세요.");
-//			return false;
-//		}
-//	}
+public class ValidateHelper {
 	
     // 정규식 패턴 정의
     private static final Pattern YEAR_PATTERN = Pattern.compile("^\\d{4}$");

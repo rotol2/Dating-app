@@ -1,4 +1,4 @@
-package com.gn.model.dao;
+package com.gn.common;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

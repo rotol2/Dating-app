@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gn.common.DBHelper;
 import com.gn.model.vo.User;
 import com.gn.model.vo.UserProfile;
 import com.gn.model.vo.UserWithProfile;
