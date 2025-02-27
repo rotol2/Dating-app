@@ -73,7 +73,7 @@ public class MatchView {
 
 				if (input == 1) {
 					// 수정 필요
-					// !
+					// !!
 					String year = (String) validateHelper.getValidatedInput("생년(년도 4자리) 입력 : ", InputType.STRING);
 					conditions.add("YEAR(birth) = " + year);
 
