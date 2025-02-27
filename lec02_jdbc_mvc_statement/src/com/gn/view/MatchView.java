@@ -1,16 +1,15 @@
 package com.gn.view;
 
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 import com.gn.common.ValidateHelper;
 import com.gn.controller.MatchController;
 import com.gn.controller.UserController;
+import com.gn.enums.InputType;
 import com.gn.model.vo.Message;
 import com.gn.model.vo.SecureAuth;
-import com.gn.model.vo.User;
 import com.gn.model.vo.UserProfile;
 import com.gn.model.vo.UserWithProfile;
 
@@ -19,6 +18,7 @@ public class MatchView {
 	private MatchController matchController;
 	private SecureAuth userSession;
 	private Scanner scanner;
+	private ValidateHelper validateHelper;
 	private static final int PAGE_SIZE = 2;
 
 	public MatchView(UserController userController, MatchController matchController, SecureAuth userSession) {
@@ -26,6 +26,7 @@ public class MatchView {
 		this.matchController = matchController;
 		this.userSession = userSession;
 		this.scanner = new Scanner(System.in);
+		this.validateHelper = new ValidateHelper();
 	}
 
 	public void showMenu() {
@@ -48,7 +49,7 @@ public class MatchView {
 				viewMessages();
 				break;
 			case 5:
-				scanner.close();
+//				scanner.close();
 				return;
 			default:
 				System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
@@ -59,113 +60,74 @@ public class MatchView {
 	private void searchUsers() {
 		List<String> conditions = new ArrayList<String>();
 		StringBuilder whereQuery = new StringBuilder();
-		ValidateHelper validateHelper = new ValidateHelper(); 
-		
-		while (true) {		
+
+		while (true) {
 			try {
-				System.out.print("검색 항목 선택( 1.나이 2.키 3.성별 4.흥미 5.mbti 6.검색 : ");
-				String inputStr = scanner.nextLine().trim();
-				int input;
-				
-				try {
-					input = Integer.parseInt(inputStr);
-				} catch (NumberFormatException e) {
-					System.out.println("숫자만 입력해주세요.");
-					continue;
-				}
-				
+				int input = (Integer) validateHelper.getValidatedInput("검색 항목 선택( 1.나이 2.키 3.성별 4.흥미 5.mbti 6.검색 : ",
+						InputType.INTEGER);
+
 				if (input < 1 || input > 6) {
 					System.out.println("1부터 6 사이의 숫자를 입력해주세요.");
 					continue;
 				}
 
-				if(input == 1) {
+				if (input == 1) {
+					// 수정 필요
+					String year = (String) validateHelper.getValidatedInput("생년(년도 4자리) 입력 : ", InputType.STRING);
+					conditions.add("YEAR(birth) = " + year);
+
+				} else if (input == 2) {
+					int height = (Integer) validateHelper.getValidatedInput("키 입력 : ", InputType.HEIGHT);
+					int nextChoice;
+
 					while (true) {
-						System.out.print("생년(년도 4자리) 입력 : ");
-						String year = scanner.nextLine().trim();
-						
-						if (validateHelper.isValidYear(year)) {
-							conditions.add("YEAR(birth) = " + year);
+						nextChoice = (Integer) validateHelper.getValidatedInput("[1]이상/[2]이하 : ", InputType.INTEGER);
+						if (nextChoice == 1) {
+							conditions.add("height >= " + height);
+							break;
+						} else if (nextChoice == 2) {
+							conditions.add("height <= " + height);
 							break;
 						} else {
-							System.out.println("올바른 년도 형식(예: 1990)으로 입력해주세요.");
+							System.out.println("1 또는 2만 입력해주세요.");
 						}
 					}
-				} else if(input == 2) {
-					while (true) {
-							System.out.print("키 입력 : ");
-							String beforeHeight = scanner.nextLine().trim();
-							
-							if(validateHelper.isValidHeight(beforeHeight)) {
-								int height = Integer.parseInt(beforeHeight);							
-								while (true) {
-									System.out.print("[1]이상/[2]이하 : ");
-									String choiceStr = scanner.nextLine().trim();								
-									try {
-										int nextChoice = Integer.parseInt(choiceStr);
-										if (nextChoice == 1) {
-											conditions.add("height >= " + height);
-											break;
-										} else if (nextChoice == 2) {
-											conditions.add("height <= " + height);
-											break;
-										} else {
-											System.out.println("1 또는 2만 입력해주세요.");
-										}
-									} catch (NumberFormatException e) {
-										System.out.println("숫자만 입력해주세요.");
-									}
-								}
-								break;
-							} else {
-								 System.out.println("올바른 키 형식(예: 175)으로 입력해주세요.");
-							}
-					}
-				} else if(input == 3) {
+
+				} else if (input == 3) {
 					// 수정해야함
 					int userId = userSession.getUserId();
 					UserWithProfile userWithProfile = userController.getUsersWithProfileById(userId);
 					UserProfile userProfile = userWithProfile.getUserProfile();
-					String userGender = userProfile.getGender();	
-					
-					if(userGender.equals("male")) {
+					String userGender = userProfile.getGender();
+
+					// 수정 필요
+					if (userGender.equals("male")) {
 						conditions.add("gender = 'female'");
-					}else if(userGender.equals("female")) {
+					} else if (userGender.equals("female")) {
 						conditions.add("gender = 'male'");
 					}
-					
-				} else if(input == 4) {
+
+				} else if (input == 4) {
 					// 수정해야함
-					System.out.print("흥미 검색 : ");
-					String interest = scanner.nextLine();
-					
+					String interest = (String) validateHelper.getValidatedInput("흥미 검색 : ", InputType.STRING);
 					conditions.add("interests = '" + interest + "'");
-				} else if(input == 5) {
-					while(true) {
-						System.out.print("mbti 검색 : ");
-						String mbti = scanner.nextLine();
-						
-						if(validateHelper.isValidMbti(mbti)) {
-							conditions.add("mbti = '" + mbti + "'");
-							break;
-						} else {
-							System.out.println("올바른 MBTI 형식(예: ENTJ)으로 입력해주세요.");
-						}
-					}
-				}
-				
-				else if(input == 6) {					
+				} else if (input == 5) {
+					String mbti = (String) validateHelper.getValidatedInput("mbti 검색 : ", InputType.MBTI);
+					conditions.add("mbti = '" + mbti + "'");
+
+				} else if (input == 6) {
 					if (!conditions.isEmpty()) {
 						whereQuery.append("WHERE ");
 						whereQuery.append(String.join(" AND ", conditions));
-						
+
 						int page = 0;
-						while(true) {		
+						while (true) {
 							// [수정함]
 							// 다음페이지를 눌렀을 때, matchingUsers가 비어 있으면 page 값을 증가/감소 시키지 않고 그대로 유지시킴
 							// 비어 있어도 메뉴는 클릭가능하게 함
 							// 근데 데이터가 처음부터 비어있어도 출력가능한지 확인해봐야함!(데이터 안비워봄 ㅠ)
-							List<UserWithProfile> searchingUsers = matchController.getSearchingUsers(whereQuery, PAGE_SIZE, page);
+							List<UserWithProfile> searchingUsers = matchController.getSearchingUsers(whereQuery,
+									PAGE_SIZE, page);
 							if (searchingUsers.isEmpty()) {
 								System.out.println("회원이 존재하지 않습니다.");
 							} else {
@@ -182,7 +144,7 @@ public class MatchView {
 							System.out.println("메뉴 선택: ");
 							int number = scanner.nextInt();
 							scanner.nextLine();
-							
+
 							if (number == 1) {
 								searchingUsers = matchController.getSearchingUsers(whereQuery, PAGE_SIZE, page + 1);
 								if (!searchingUsers.isEmpty()) {
@@ -195,22 +157,25 @@ public class MatchView {
 							} else if (number == 3) {
 								viewTargetUserDetails();
 							} else if (number == 4) {
+								showMenu();
 								break;
 							} else {
 								System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
 							}
 //						break;
 						}
+					} else {
+						System.out.println("검색 항목을 선택해주세요.");
 					}
 				}
 			} catch (Exception e) {
-	            System.out.println("처리 중 오류가 발생했습니다. 다시 시도해주세요.");
-	            e.printStackTrace();
-	            scanner.nextLine(); 
-	        }
+				System.out.println("처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+				e.printStackTrace();
+				scanner.nextLine();
+			}
 		}
 	}
-	
+
 	private void viewTargetUserDetails() {
 		System.out.println("상세 정보를 확인할 유저의 ID: ");
 		int userId = scanner.nextInt();
@@ -241,7 +206,7 @@ public class MatchView {
 					sendRatingToUser(userId);
 					break;
 				} else if (input == 4) {
-					break;
+					return;
 				} else {
 					System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
 				}
@@ -267,17 +232,11 @@ public class MatchView {
 	private void sendRatingToUser(int userId) {
 		int rating;
 		while (true) {
-			try {
-				System.out.print("평점 입력(최저:1 ~ 최고:5) : ");
-				rating = scanner.nextInt();
-				if (1 <= rating && rating <= 5) {
-					break;
-				} else {
-					System.out.println("잘못된 입력입니다. 1부터 5사이의 값을 입력해주세요.");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("잘못된 입력입니다. 숫자를 입력해주세요.");
-				scanner.nextLine();
+			rating = (Integer) validateHelper.getValidatedInput("평점 입력(최저:1 ~ 최고:5) : ", InputType.INTEGER);
+			if (1 <= rating && rating <= 5) {
+				break;
+			} else {
+				System.out.println("잘못된 입력입니다. 1부터 5사이의 값을 입력해주세요.");
 			}
 		}
 		boolean result = matchController.sendRating(userSession.getUserId(), userId, rating);
@@ -315,8 +274,5 @@ public class MatchView {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-	
+
 }

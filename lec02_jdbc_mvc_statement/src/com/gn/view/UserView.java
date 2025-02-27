@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
-import com.gn.common.GenericHelper;
-import com.gn.common.GenericHelper.InputType;
+import com.gn.common.ValidateHelper;
 import com.gn.controller.UserController;
+import com.gn.enums.InputType;
 import com.gn.model.vo.SecureAuth;
 import com.gn.model.vo.User;
 import com.gn.model.vo.UserProfile;
@@ -17,11 +17,13 @@ public class UserView {
 	private UserController userController;
 	private SecureAuth userSession;
 	private Scanner scanner;
+    private ValidateHelper validateHelper;
 
 	public UserView(UserController userController, SecureAuth userSession) {
 		this.userSession = userSession;
 		this.userController = userController;
 		this.scanner = new Scanner(System.in);
+		this.validateHelper = new ValidateHelper();
 	}
 
 	public void showMenu() {
@@ -55,7 +57,7 @@ public class UserView {
 				deleteUser();
 				break;
 			case 6:
-				scanner.close();
+//				scanner.close();
 //				System.out.println("프로그램을 종료합니다.");
 //				System.exit(0);
 				return;
@@ -66,23 +68,21 @@ public class UserView {
 	}
 
 	private void registerUser() {
-		GenericHelper inputHelper = new GenericHelper();
 		System.out.println("=== 회원 등록 ===");
 
-	    String email = inputHelper.getInput("이메일: ", InputType.STRING, String.class);
-	    String password = inputHelper.getInput("비밀번호: ", InputType.STRING, String.class);
-	    String username = inputHelper.getInput("이름: ", InputType.STRING, String.class);
+        String email = (String) validateHelper.getValidatedInput("이메일: ", InputType.EMAIL);
+        String password = (String) validateHelper.getValidatedInput("비밀번호: ", InputType.PASSWORD);
+	    String username = (String) validateHelper.getValidatedInput("사용자 이름: ", InputType.STRING);
 	    String state = "active";
-	    LocalDate birth = inputHelper.getInput("생년월일 (YYYY-MM-DD): ", InputType.LOCAL_DATE, LocalDate.class);
-	    int height = inputHelper.getInput("키: ", InputType.INTEGER, Integer.class);
-	    String gender = inputHelper.getInput("성별 (male/female): ", InputType.STRING, String.class);
-	    String phoneNumber = inputHelper.getInput("전화번호 (000-0000-0000): ", InputType.STRING, String.class);
-	    String address = inputHelper.getInput("주소: ", InputType.STRING, String.class);
-	    String profilePicture = inputHelper.getInput("프로필 사진 경로: ", InputType.STRING, String.class);
-	    String interests = inputHelper.getInput("관심사: ", InputType.STRING, String.class);
-	    String mbti = inputHelper.getInput("MBTI: ", InputType.STRING, String.class);
-	    String bio = inputHelper.getInput("자기소개: ", InputType.STRING, String.class);
-
+	    LocalDate birth = (LocalDate) validateHelper.getValidatedInput("생년월일 (YYYY-MM-DD): ", InputType.DATE);
+	    int height = (Integer) validateHelper.getValidatedInput("키(cm): ", InputType.HEIGHT);
+	    String gender = (String) validateHelper.getValidatedInput("성별(male/female/other): ", InputType.GENDER);
+	    String phoneNumber = (String) validateHelper.getValidatedInput("전화번호 (000-0000-0000): ", InputType.PHONE);
+	    String address = (String) validateHelper.getValidatedInput("주소: ", InputType.STRING);
+	    String profilePicture = (String) validateHelper.getValidatedInput("프로필 사진 경로: ", InputType.STRING);
+	    String interests = (String) validateHelper.getValidatedInput("관심사: ", InputType.STRING);
+	    String mbti = (String) validateHelper.getValidatedInput("MBTI: ", InputType.MBTI);
+	    String bio = (String) validateHelper.getValidatedInput("자기소개: ", InputType.STRING);
 		LocalDateTime currentTime = LocalDateTime.now();
 
 		// 생성자 매개변수 불일치 id매개변수 값에 0으로 넣으면 해결
@@ -139,40 +139,48 @@ public class UserView {
 		scanner.nextLine();
 
 		UserWithProfile userWithProfile = userController.getUsersWithProfileById(userId);
+		User user = userWithProfile.getUser();
+		UserProfile profile = userWithProfile.getUserProfile();
+	
 		if (userWithProfile != null) {
-			User user = userWithProfile.getUser();
-			UserProfile profile = userWithProfile.getUserProfile();
-
 			System.out.println("=== 회원 정보 수정 ===");
-			System.out.print("새 이메일 (현재: " + user.getEmail() + "): ");
-			String newEmail = scanner.nextLine();
-			System.out.print("새 비밀번호 (현재: " + user.getPassword() + "): ");
-			String newPassword = scanner.nextLine();
+	        while (true) {
+	            System.out.println("변경 항목 선택( 1.이메일 2.비밀번호 3.전화번호 4.주소 5.프로필 사진 6.관심사 7.MBTI 8.자기소개 9.변경)");
+	            int choice = (Integer) validateHelper.getValidatedInput("선택: ", InputType.INTEGER);
 
-			System.out.print("새 전화번호 (현재: " + profile.getPhoneNumber() + "): ");
-			String newPhoneNumber = scanner.nextLine();
-			System.out.print("새 주소 (현재: " + profile.getAddress() + "): ");
-			String newAddress = scanner.nextLine();
-			System.out.print("새 프로필 사진 경로 (현재: " + profile.getProfilePicture() + "): ");
-			String newProfilePicture = scanner.nextLine();
-			System.out.print("새 관심사 (현재: " + profile.getInterests() + "): ");
-			String newInterests = scanner.nextLine();
-			System.out.print("새 MBTI (현재: " + profile.getMbti() + "): ");
-			String newMbti = scanner.nextLine();
-			System.out.print("새 자기소개 (현재: " + profile.getBio() + "): ");
-			String newBio = scanner.nextLine();
-
-			user.setEmail(newEmail.trim().isEmpty() ? user.getEmail() : newEmail);
-			user.setPassword(newPassword.trim().isEmpty() ? user.getPassword() : newPassword);
-			profile.setPhoneNumber(newPhoneNumber.trim().isEmpty() ? profile.getPhoneNumber() : newPhoneNumber);
-			profile.setAddress(newAddress.trim().isEmpty() ? profile.getAddress() : newAddress);
-			profile.setProfilePicture(newProfilePicture.trim().isEmpty() ? profile.getProfilePicture() : newProfilePicture);
-			profile.setInterests(newInterests.trim().isEmpty() ? profile.getInterests() : newInterests);
-			profile.setMbti(newMbti.trim().isEmpty() ? profile.getMbti() : newMbti);
-			profile.setBio(newBio.trim().isEmpty() ? profile.getBio() : newBio);
-
-	        userController.updateUser(user, profile);
-	        System.out.println("회원 정보가 업데이트되었습니다.");
+	            switch (choice) {
+	                case 1:
+	                    user.setEmail((String) validateHelper.getValidatedInput("새 이메일: ", InputType.EMAIL));
+	                    break;
+	                case 2:	
+	                    user.setPassword((String) validateHelper.getValidatedInput("새 비밀번호: ", InputType.PASSWORD));
+	                    break;
+	                case 3:
+	                	profile.setPhoneNumber((String) validateHelper.getValidatedInput("새 전화번호 (예: 000-0000-0000): ", InputType.PHONE));
+	                	break;
+	                case 4:
+	                    profile.setAddress((String) validateHelper.getValidatedInput("새 주소: ", InputType.STRING));
+	                    break;      
+	                case 5:
+	                    profile.setProfilePicture((String) validateHelper.getValidatedInput("새 프로필 사진 경로: ", InputType.STRING));
+	                    break;
+	                case 6:
+	                    profile.setInterests((String) validateHelper.getValidatedInput("새 관심사: ", InputType.STRING));
+	                    break;
+	                case 7:
+	                    profile.setMbti((String) validateHelper.getValidatedInput("새 MBTI: ", InputType.MBTI));
+	                    break;
+	                case 8:
+	                	 profile.setBio((String) validateHelper.getValidatedInput("새 자기소개: ", InputType.STRING));
+		                 break;
+	                case 9:
+	                    userController.updateUser(user, profile);
+	                    System.out.println("회원 정보가 성공적으로 수정되었습니다!");
+	                    return;
+	                default:
+	                    System.out.println("잘못된 입력입니다. 다시 선택해주세요.");
+	            }
+	        }
 	    } else {
 	        System.out.println("해당 ID의 회원이 존재하지 않습니다.");
 		}
