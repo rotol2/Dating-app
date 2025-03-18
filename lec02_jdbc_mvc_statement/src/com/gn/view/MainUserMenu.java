@@ -26,10 +26,11 @@ public class MainUserMenu {
 		System.out.println("현재 로그인된 사용자: " + userSession.getUsername());
 		UserDAO userDAO = new UserDAO();
 		while(true) {
-			System.out.println("== 메인 메뉴 ==");
+			System.out.println("\n== 메인 메뉴 ==");
 			System.out.println("1. 회원 관리");
 			System.out.println("2. 회원 매칭");
-			System.out.println("3. 로그아웃");
+			System.out.println("3. 심리테스트");
+			System.out.println("4. 로그아웃");
 			System.out.print("메뉴 선택 : ");
 			int input = scanner.nextInt();
 			scanner.nextLine();
@@ -45,7 +46,14 @@ public class MainUserMenu {
 					this.matchController = new MatchController(matchDAO);
 					new MatchView(userController, matchController, userSession).showMenu();
 					break;
+					// 새로생성
 				case 3:
+				    new MbtiTestView().startTest();
+				    //여기에 usersession 매개변수로 추가해야하나?
+				    break;
+
+					//여기까지
+				case 4:
 					logout();
 					return;
 				default:

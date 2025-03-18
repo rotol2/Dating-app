@@ -1,29 +1,20 @@
 package com.gn.model.vo;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+
 public class UserWithProfile {
     private User user;
     private UserProfile userProfile;
-
-    public UserWithProfile(User user, UserProfile userProfile) {
-        this.user = user;
-        this.userProfile = userProfile;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public UserProfile getUserProfile() {
-        return userProfile;
-    }
-
-    public void setUserProfile(UserProfile userProfile) {
-        this.userProfile = userProfile;
-    }
 
     @Override
     public String toString() {
