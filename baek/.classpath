@@ -6,7 +6,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/Library/Java/JavaVirtualMachines/jar/mysql-connector-j-9.0.0.jar"/>
-	<classpathentry kind="lib" path="/Library/Java/JavaVirtualMachines/jar/lombok.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
