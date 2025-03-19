@@ -30,9 +30,9 @@ public class MatchView {
 	}
 
 	public void showMenu() {
-		System.out.println("현재 로그인된 사용자: " + userSession.getUsername());
+		System.out.println("\n현재 로그인된 사용자: " + userSession.getUsername());
 		while (true) {
-			System.out.println("== 회원 매칭 메뉴 ==");
+			System.out.println("\n== 회원 매칭 메뉴 ==");
 			System.out.println("1. 유저 검색");
 			System.out.println("2. 받은 메시지 확인");
 			// 찜확인,평점 확인 기능도 추가해야 하나??
@@ -123,12 +123,7 @@ public class MatchView {
 
 						int page = 0;
 						while (true) {
-							// [수정함]
-							// 다음페이지를 눌렀을 때, matchingUsers가 비어 있으면 page 값을 증가/감소 시키지 않고 그대로 유지시킴
-							// 비어 있어도 메뉴는 클릭가능하게 함
-							// 근데 데이터가 처음부터 비어있어도 출력가능한지 확인해봐야함!(데이터 안비워봄 ㅠ)
-							List<UserWithProfile> searchingUsers = matchController.getSearchingUsers(whereQuery,
-									PAGE_SIZE, page);
+							List<UserWithProfile> searchingUsers = matchController.getSearchingUsers(whereQuery,PAGE_SIZE, page);
 							if (searchingUsers.isEmpty()) {
 								System.out.println("회원이 존재하지 않습니다.");
 							} else {
@@ -158,8 +153,7 @@ public class MatchView {
 							} else if (number == 3) {
 								viewTargetUserDetails();
 							} else if (number == 4) {
-								showMenu();
-								break;
+								return;
 							} else {
 								System.out.println("잘못된 입력입니다. 다시 시도해주세요.");
 							}

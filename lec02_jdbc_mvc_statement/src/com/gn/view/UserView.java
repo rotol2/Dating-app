@@ -27,9 +27,10 @@ public class UserView {
 	}
 
 	public void showMenu() {
-		System.out.println("현재 로그인된 사용자: " + userSession.getUsername());
+		System.out.println("\n현재 로그인된 사용자: " + userSession.getUsername());
+		
 		while (true) {
-			System.out.println("== 회원 관리 메뉴 ==");
+			System.out.println("\n== 회원 관리 메뉴 ==");
 			System.out.println("1. 회원가입");
 			System.out.println("2. 전체 회원 목록 보기");
 			System.out.println("3. 개별 회원 정보 조회");

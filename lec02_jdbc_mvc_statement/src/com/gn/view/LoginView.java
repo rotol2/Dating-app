@@ -49,7 +49,7 @@ public class LoginView {
 //		String password = scanner.nextLine();
 //
 //		SecureAuth userSession = secureAuthController.loginProcess(email, password);
-		SecureAuth userSession = secureAuthController.loginProcess("t1@gmail.com","");
+		SecureAuth userSession = secureAuthController.loginProcess("t1@gmail.com","pwd1234!");
 		if (userSession != null) {
 			System.out.println(userSession.getUsername() + "님, 환영합니다.");
 			MatchController matchController = new MatchController(new MatchDAO());

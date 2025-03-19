@@ -25,9 +25,7 @@ public class MbtiTestView {
         dimensionScores.put("TF", 0);
         dimensionScores.put("JP", 0);
 
-        List<MbtiQuestion> questions = mbtiTestController.getQuestions();
-
-        for (MbtiQuestion question : questions) {
+        for (MbtiQuestion question : mbtiTestController.getQuestions()) {
             System.out.println("\n" + question.getQuestion());
             System.out.println("A. " + question.getAnswerA());
             System.out.println("B. " + question.getAnswerB());
@@ -50,7 +48,7 @@ public class MbtiTestView {
                         (dimensionScores.get("TF") >= 2 ? "T" : "F") +
                         (dimensionScores.get("JP") >= 2 ? "J" : "P");
 
-        System.out.println("\n당신의 MBTI 결과: " + result + "\n");
+        System.out.println("\n당신의 이상형 MBTI 결과: " + result + "\n");
 
     }
 }

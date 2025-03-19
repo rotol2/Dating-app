@@ -23,7 +23,7 @@ public class MainUserMenu {
 	}
 	
 	public void showMenu() {
-		System.out.println("현재 로그인된 사용자: " + userSession.getUsername());
+		System.out.println("\n현재 로그인된 사용자: " + userSession.getUsername());
 		UserDAO userDAO = new UserDAO();
 		while(true) {
 			System.out.println("\n== 메인 메뉴 ==");

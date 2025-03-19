@@ -16,7 +16,7 @@ public class Run {
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
-//		
+		
 //		UserDAO userDAO = new UserDAO();
 //		UserController userController = new UserController(userDAO);
 //		UserView userView = new UserView(userController);
@@ -26,7 +26,7 @@ public class Run {
 //		} catch (Exception e) {
 //			e.printStackTrace();
 //		}
-//		
+		
 	}
 
 	
